@@ -1,17 +1,34 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import TodoList from './TodoList'
 
 export default function App() {
-  const [todos, setTodods] = useState([
-    {id: 1, title: 'First todo', completed: false},
-    {id: 2, title: 'Second todo', completed: true},
-  ]);
-
+  const [todos, setTodos] = useState([]);
   const [todoTitle, setTodoTitle] = useState('');
+
+  const handleClick = () => console.log('click');
+
+  useEffect(() => {
+    const raw = localStorage.getItem('todos') || [];
+    setTodos(JSON.parse(raw)); 
+  }, []);
+
+  // ^ 1. Если был передан пустой массив [] вторым аргументом метода useEffect - то эмулируется метод componentDidMount, который вызывается тогда, когда компонент уже был смонтирован, и загружен в ДОМ
+
+  useEffect(() => {
+    // устанавливаем слушатель, который отслеживает клик мышки. Он будет писать в консоль каждое событие мыши, умноженное на количество элементов массива todos. Потому что useEffect был вызван дважды: 1й раз когда он был пустой, и второй раз когда мы достали массив из локального хранилища. Это называется утечка памяти. Мы на каждый элемент массива повесили слушатель.
+    document.addEventListener('click', handleClick);
+    localStorage.setItem('todos', JSON.stringify(todos))
+    return () => {
+      // чтобы этого не происходило, нам нужно отменить регистрацию слушателя на клик мышки, вернув колбэк у useEffetct, тогда событие будет регистрироваться один раз
+      document.removeEventListener('click', handleClick)
+    }
+  }, [todos]);
+
+  // ^ 2. Если был передан стейт todos, который заполняется методом useState, то при каждом вызове setTodos, и изменении состояния переменной todos - будет срабатывать callback, который мы передали первым аргументом в метод useEffect
 
   const addTodo = event => {
     if (event.key === 'Enter') {
-       setTodods([
+       setTodos([
          ...todos,
          {
            id: Date.now(),
