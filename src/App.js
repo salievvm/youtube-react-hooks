@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import TodoList from './TodoList'
+// UC: Импортируем контекст
+import { Context } from './context'
 
 export default function App() {
   const [todos, setTodos] = useState([]);
@@ -40,19 +42,40 @@ export default function App() {
     }
   }
 
+  // UC1: Добавляем две функции, которые будут работать в дочерних компонентах
+  const removeTodo = id => {
+    setTodos(todos.filter(todo => {
+      return todo.id !== id
+    }))
+  }
+
+  const toggleTodo = id => {
+    setTodos(todos.map(todo => {
+      if (todo.id === id) {
+        todo.completed = !todo.completed;
+      }
+      return todo;
+    }))
+  }
+
   return (
-    <div className="container">
-      <h1>Todo app</h1>
+    <Context.Provider value={{
+      // UC2: Передаем эти функции (ссылки на функции) вниз через провайдер контекста (проводник контекста), который их передаст дальше, кому они нужнее, со всеми аргументами
+      toggleTodo, removeTodo
+    }}>
+      <div className="container">
+        <h1>Todo app</h1>
 
-        <div className="input-field">
-          <input type="text" 
-            onChange={event => setTodoTitle(event.target.value)}
-            value={todoTitle}
-            onKeyPress={addTodo} />
-          <label>Todo name</label>
-        </div>
+          <div className="input-field">
+            <input type="text" 
+              onChange={event => setTodoTitle(event.target.value)}
+              value={todoTitle}
+              onKeyPress={addTodo} />
+            <label>Todo name</label>
+          </div>
 
-        <TodoList todos={todos} />
-    </div>
+          <TodoList todos={todos} />
+      </div>
+    </Context.Provider>
   );
 }
