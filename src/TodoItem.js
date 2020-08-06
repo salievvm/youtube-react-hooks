@@ -4,7 +4,7 @@ import { Context } from './context'
 
 export default function TodoItem({title, id, completed}) {
   // UC4: метод useContext ищет ближайшего провайдера контекста, или компонент <Context.Provider> и берет у него значения из поля value. Мы же, через оператор развертывания, зная что в value выше передавали две функции - цепляем их, или если удобно ссылки на них.
-  const { toggleTodo, removeTodo } = useContext(Context);
+  const { dispatch } = useContext(Context);
 
   const cls = ['todo'];
 
@@ -17,13 +17,13 @@ export default function TodoItem({title, id, completed}) {
         <input
           type="checkbox"
           checked={completed}
-          // UC5: И теперь уже можем смело скаказть, что вот такую функцию мне исполни. С каменным ебалом. Как будто эта функция лежит прямо в текущем файле, или где-то в другом файле экспортированная. Но сок в том, что мы ее объявили ВНУТРИ родительского компонента. Там, где мы объявили стейт, и можем его изменить. А значит мы уходим от пропсов и обработчиков функций через бесконечную вложенность компонентов, за нас это делает Провайдер.
-          onChange={() => toggleTodo(id)}
+          // UCR3: И теперь уже можем смело скаказть, что вот такую функцию мне исполнить. С каменным ебалом. Как будто эта функция лежит прямо в текущем файле, или где-то в другом файле экспортированная. Но сок в том, что мы ее объявили ВООБЩЕ в другом отдельном файле с логикой. Там, где мы объявили по сути свитчер стоит, который в зависимости от действия обновляет состояние.
+          onChange={() => dispatch({type: 'toggle', payload: id})}
         />
         <span>{title}</span>
 
         <i
-          onClick={() => removeTodo(id)}
+          onClick={() => dispatch({type: 'remove', payload: id})}
           className="material-icons red-text"
         >
           delete
